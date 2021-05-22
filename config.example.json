@@ -1,0 +1,6 @@
+{
+  "data_dir": "/home/user/reddit-data",
+  "already_processed": "/home/user/reddit-data/processed.txt",
+  "psql_conn_str": "host=localhost port=5432 dbname=reddit user=username password=supersecretpassword",
+  "subreddit": "GameDeals"
+}
