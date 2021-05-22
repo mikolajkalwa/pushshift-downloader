@@ -1,8 +1,12 @@
 import collections
+import hashlib
 import itertools
+import os
+from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 
 def _get_available_files():
@@ -45,3 +49,51 @@ def get_files_to_dl(since=None):
         starting_index = files.index(first_matching)
         return files[starting_index:]
     return files
+
+
+def get_sha_sums() -> dict[str, str]:
+    """
+    Download shasums of all reddit submissions files.
+    :return: Directory, key is filename, value is expected shasum
+    """
+    r = requests.get('https://files.pushshift.io/reddit/submissions/sha256sums.txt')
+    sha_sums = {}
+    for line in r.text.splitlines():
+        if line:
+            sha_sum, file = line.split('  ')
+            sha_sums[file] = sha_sum
+    return sha_sums
+
+
+def download_file(file_name: str, output_dir: os.PathLike) -> None:
+    """
+    Download file with given name for pushshift.
+    :param file_name: Name of the file on pusshift
+    :param output_dir: Output directory where archive should be saved
+    :return:
+    """
+    with requests.get(f'https://files.pushshift.io/reddit/submissions/{file_name}', stream=True) as r:
+        r.raise_for_status()
+        total_size_in_bytes = int(r.headers.get('content-length', 0))
+        chunk_size = 8192
+        progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+        with open(Path(output_dir, file_name), 'wb') as f:
+            for chunk in r.iter_content(chunk_size=chunk_size):
+                progress_bar.update(len(chunk))
+                f.write(chunk)
+    progress_bar.close()
+
+
+def does_sha_match(file: Path, sha_sums: dict[str, str]) -> bool:
+    """
+    Checks if shasum of downloaded file matches with the sum provided by pushshift
+    :param file: Path to archive file
+    :param sha_sums: Directory with sha sums from pusshift
+    :return: True is sum matches, otherwise False
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+
+    return sha_sums[file.name] == sha256_hash.hexdigest()

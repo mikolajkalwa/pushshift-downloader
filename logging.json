@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "formatters": {
+    "detailed": {
+      "class": "logging.Formatter",
+      "format": "%(asctime)s %(name)-15s %(levelname)-8s %(processName)-10s %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "level": "INFO",
+      "stream": "ext://sys.stdout",
+      "formatter": "detailed"
+    },
+    "file": {
+      "class": "logging.FileHandler",
+      "filename": "reddit.log",
+      "mode": "a",
+      "formatter": "detailed",
+      "level": "DEBUG"
+    }
+  },
+  "root": {
+    "level": "DEBUG",
+    "handlers": [
+      "console",
+      "file"
+    ]
+  }
+}
