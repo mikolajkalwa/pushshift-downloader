@@ -87,10 +87,14 @@ def download_file(file_name: str, output_dir: os.PathLike) -> None:
 def does_sha_match(file: Path, sha_sums: dict[str, str]) -> bool:
     """
     Checks if shasum of downloaded file matches with the sum provided by pushshift
+    Returns True if sha sum is not provided by pushshift.io
     :param file: Path to archive file
     :param sha_sums: Directory with sha sums from pusshift
     :return: True is sum matches, otherwise False
     """
+    if file.name not in sha_sums:
+        return True
+
     sha256_hash = hashlib.sha256()
     with open(file, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
