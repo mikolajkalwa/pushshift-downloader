@@ -48,7 +48,7 @@ def process_file(config: Config, archive_file: Path) -> None:
     conn = psycopg2.connect(config.psql_conn_str)
     conn.autocommit = True
 
-    game_deals_entries = 0
+    submissions_found = 0
 
     with conn:
         proc = archive.decompress(archive_file)
@@ -57,7 +57,7 @@ def process_file(config: Config, archive_file: Path) -> None:
                 try:
                     submission = json.loads(line)
                     if submission.get('subreddit') == config.subreddit:
-                        game_deals_entries += 1
+                        submissions_found += 1
                         with conn.cursor() as c:
                             c.execute('INSERT INTO submissions (created_utc, submission_id, title) VALUES (%s,%s,%s)',
                                       (datetime.utcfromtimestamp(int(submission.get('created_utc', 0))),
@@ -69,4 +69,4 @@ def process_file(config: Config, archive_file: Path) -> None:
                     logger.exception(f'Unexpected error while processing line: {line}')
 
     conn.close()
-    logger.info(f'{config.subreddit} submissions in {archive_file}: {game_deals_entries}')
+    logger.info(f'{config.subreddit} submissions in {archive_file}: {submissions_found}')

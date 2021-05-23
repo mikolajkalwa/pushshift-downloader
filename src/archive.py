@@ -2,10 +2,6 @@ import subprocess
 from pathlib import Path
 
 
-def _get_output_file(filename: Path) -> str:
-    return str(Path(filename.parent, filename.stem))
-
-
 def _decompress_zst(filename: Path):
     return subprocess.Popen(['zstdcat', filename], stdout=subprocess.PIPE)
 

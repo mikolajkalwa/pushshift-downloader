@@ -39,6 +39,7 @@ def main(cfg: Config, since: str = '2009-04'):
         else:
             logger.error(f"SHA Sums don't match. File: {file_name}")
 
+        # remove downloaded archive from disk
         if archive_file.exists():
             archive_file.unlink()
 
