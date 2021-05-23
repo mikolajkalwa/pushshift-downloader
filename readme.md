@@ -54,3 +54,5 @@ Example: `python -m src.main "2012-10"`
 
 - Add multithreading. Keep downloading the files while processing 
 - Dockerize the whole project. 
+- Currently, only creation date and submission title are saved.
+  Replace Postgres with more flexible NoSQL Database and store all the available fields. 
